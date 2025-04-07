@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import os, json
 from stegano_utils import hide_message, reveal_message
 from werkzeug.utils import secure_filename
+from encryption_utils import encrypt
+from encryption_utils import decrypt
 
 app = Flask(__name__)
 app.secret_key = "sekret123"
@@ -34,7 +36,8 @@ def register():
         image.save(path)
 
         generated_path = os.path.join(GENERATED_FOLDER, f"{username}.png")
-        hide_message(path, generated_path, username)
+        encrypted_username = encrypt(username)
+        hide_message(path, generated_path, encrypted_username)        
 
         with open(USER_DB) as f:
             users = json.load(f)
@@ -56,8 +59,13 @@ def login():
         image.save(path)
 
         hidden_msg = reveal_message(path)
+        print("Wiadomosc ukryta w obrazku: ", hidden_msg)
+        try:
+            decrypted_msg = decrypt(hidden_msg)
+        except:
+            return redirect(url_for("fail"))
 
-        if hidden_msg == username:
+        if decrypted_msg == username:
             session["username"] = username
             return redirect(url_for("success"))
         else:

@@ -1,0 +1,130 @@
+body {
+  background: linear-gradient(to bottom right, #b0e0e6, #f0fff0);
+  font-family: 'Verdana', sans-serif;
+  color: #000080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.body-failure {
+  background: linear-gradient(to bottom right, #f4cccc, #fff0f5);
+  color: #800000;
+}
+
+.error-container {
+  background: #fffafa;
+  border: 2px solid #800000;
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  padding: 20px;
+  text-align: center;
+}
+
+.main-container {
+  background: #ffffff;
+  border: 2px solid #000080;
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  padding: 30px;
+  text-align: center;
+}
+
+.form-container {
+  background: #ffffff;
+  border: 2px solid #000080;
+  border-radius: 10px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  padding: 20px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px #aaa;
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  text-shadow: 1px 1px #aaa;
+}
+
+a {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  width: 70%;
+  text-decoration: none;
+  color: #000080;
+  background-color: #87ceeb;
+  border: 2px outset #4682b4;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+a:hover {
+  background-color: #add8e6;
+}
+
+input[type="text"],
+input[type="file"] {
+  width: 90%;
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #888;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #f8f8f8;
+}
+
+input[type="submit"] {
+  background-color: #87ceeb;
+  border: 2px outset #4682b4;
+  color: #000080;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+input[type="submit"]:hover {
+  background-color: #add8e6;
+}
+
+.logout-link {
+  text-align: right;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.logout-link a {
+  color: #000080;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.logout-link a:hover {
+  text-decoration: underline;
+}
+
+/* Dodatkowe elementy retro */
+.corner-decor {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000080;
+  font-family: 'Comic Sans MS', cursive;
+}

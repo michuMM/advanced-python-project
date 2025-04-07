@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html>
-<head><title>Rejestracja</title></head>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Rejestracja</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
 <body>
-  <h2>Rejestracja</h2>
-  <form method="post" enctype="multipart/form-data">
-    Nazwa użytkownika: <input type="text" name="username"><br>
-    Obrazek: <input type="file" name="image"><br>
-    <input type="submit" value="Zarejestruj">
-  </form>
+  <div class="form-container">
+    <h2>Rejestracja</h2>
+    <form method="post" enctype="multipart/form-data">
+      <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
+      <input type="file" name="image"><br>
+      <input type="submit" value="Zarejestruj">
+    </form>
+  </div>
+  <div class="corner-decor">Zaawansowane programowanie w Pythonie</div>  
 </body>
 </html>

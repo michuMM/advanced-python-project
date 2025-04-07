@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head><title>Logowanie</title></head>
+<head><title>Logowanie</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
 <body>
-  <h2>Logowanie</h2>
-  <form method="post" enctype="multipart/form-data">
-    Nazwa użytkownika: <input type="text" name="username"><br>
-    Obrazek: <input type="file" name="image"><br>
-    <input type="submit" value="Zaloguj">
-  </form>
+  <div class="form-container">
+    <h2>Logowanie</h2>
+    <form method="post" enctype="multipart/form-data">
+      <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
+      <input type="file" name="image"><br>
+      <input type="submit" value="Zaloguj">
+    </form>    
+  </div>
+  <div class="corner-decor">Zaawansowane programowanie w Pythonie</div>  
 </body>
 </html>

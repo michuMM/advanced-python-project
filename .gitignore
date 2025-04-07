@@ -172,3 +172,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Dane uzytkownikow oraz obrazy
+/project/generated/*
+/project/uploads/*
+/project/data/*

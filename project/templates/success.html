@@ -1,8 +1,15 @@
 <!DOCTYPE html>
-<html>
-<head><title>Zalogowano</title></head>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Zalogowano</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
 <body>
-  <div style="text-align: right;"><a href="/logout">Wyloguj</a></div>
-  <h2>Zalogowany jako {{ username }}</h2>
+  <div class="form-container">
+    <div class="logout-link"><a href="/logout">Wyloguj</a></div>
+    <h2>Zalogowany jako {{ username }}</h2>
+  </div>
+  <div class="corner-decor">Zaawansowane programowanie w Pythonie</div>  
 </body>
 </html>

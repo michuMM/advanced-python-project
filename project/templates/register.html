@@ -9,11 +9,28 @@
   <div class="form-container">
     <h2>Rejestracja</h2>
     <form method="post" enctype="multipart/form-data">
+      <!-- Wybór algorytmu -->
+      <div class="algorithm-selection">
+        <h3>Wybierz algorytm</h3>
+        <label>
+          <input type="radio" name="algorithm" value="aes" checked>
+          AES (symetryczny)
+        </label><br>
+        <label>
+          <input type="radio" name="algorithm" value="rsa">
+          RSA (asymetryczny)
+        </label>
+      </div>
+
+      <!-- Ukryty input nie jest już potrzebny -->
       <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
       <input type="file" name="image"><br>
       <input type="submit" value="Zarejestruj">
     </form>
   </div>
-  <div class="corner-decor">Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka</div>  
+
+  <div class="corner-decor">
+    Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka
+  </div>
 </body>
 </html>

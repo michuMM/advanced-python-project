@@ -1,3 +1,6 @@
+# Co najpierw zrobić
+Zanim uruchomiony zostanie projekt (python app.py), nalezy uruchomic init.py (python init.py). Wygenerowana zostanie wtedy para kluczy.
+
 # advanced-python-project
 Nieinteraktywna bezhasłowość (Bezhasłowa obsługa).
 

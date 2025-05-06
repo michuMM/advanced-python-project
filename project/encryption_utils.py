@@ -2,8 +2,12 @@ from Crypto.Cipher import AES, DES
 from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA, ECC
 from Crypto.Cipher import PKCS1_OAEP
+
 from Crypto.Protocol.KDF import HKDF
 from Crypto.Hash import SHA256
+
+import time
+
 
 import base64
 
@@ -37,14 +41,26 @@ def encrypt_rsa(message):
     with open("public.pem", "rb") as pub_file:
         public_key = RSA.import_key(pub_file.read())
     cipher = PKCS1_OAEP.new(public_key)
+
+    start = time.perf_counter()
     encrypted = cipher.encrypt(message.encode())
+    end = time.perf_counter()
+
+    duration = end - start
+    print("RSA - czas enkrypcji: ", duration)
     return base64.b64encode(encrypted).decode()
 
 def decrypt_rsa(enc_message):
     with open("private.pem", "rb") as prv_file:
         private_key = RSA.import_key(prv_file.read())
     cipher = PKCS1_OAEP.new(private_key)
+
+    start = time.perf_counter()
     decrypted = cipher.decrypt(base64.b64decode(enc_message))
+    end = time.perf_counter()
+
+    duration = end - start
+    print("RSA - czas dekrypcji: ", duration)
     return decrypted.decode()
 
 # ---------- DES ----------
@@ -66,7 +82,7 @@ def encrypt_ecc(message):
     # Wczytaj klucz publiczny odbiorcy
     recipient_key = ECC.import_key(open("ecc_public.pem").read())
 
-    # Wygeneruj ephemeral (tymczasowy) klucz nadawcy
+    # Wygeneruj tymczasowy klucz nadawcy
     sender_key = ECC.generate(curve='P-256')
 
     # Oblicz wspólny sekret
@@ -76,32 +92,41 @@ def encrypt_ecc(message):
     # Wygeneruj klucz AES przez HKDF
     key = HKDF(shared_secret, 32, b'', SHA256)
 
-    # Szyfruj wiadomość AESem
+    # Szyfruj wiadomość AES
     iv = get_random_bytes(16)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     ct = cipher.encrypt(pad(message).encode())
 
-    # Zwróć zakodowaną wiadomość i klucz publiczny nadawcy
+    # Zakoduj wiadomość + publiczny klucz nadawcy
     sender_pub_key = sender_key.export_key(format='PEM')
-    return base64.b64encode(iv + ct).decode(), sender_pub_key
+    full_message = base64.b64encode(iv + ct).decode() + "||" + base64.b64encode(sender_pub_key.encode()).decode()
 
-def decrypt_ecc(enc_message, sender_pub_key_pem):
-    # Wczytaj własny klucz prywatny
+    return full_message
+
+def decrypt_ecc(full_message):
+    try:
+        enc_b64, sender_pub_key_b64 = full_message.split("||")
+    except ValueError:
+        raise Exception("Niepoprawny format wiadomości ECC")
+
+    # Dekodowanie
+    encrypted_data = base64.b64decode(enc_b64)
+    sender_pub_key_pem = base64.b64decode(sender_pub_key_b64).decode()
+
+    # Wczytaj klucze
     private_key = ECC.import_key(open("ecc_private.pem").read())
-
-    # Wczytaj klucz publiczny nadawcy
     sender_key = ECC.import_key(sender_pub_key_pem)
 
     # Oblicz wspólny sekret
     shared_secret_point = sender_key.pointQ * private_key.d
     shared_secret = int(shared_secret_point.x).to_bytes(32, 'big')
 
-    # Wygeneruj AES z sekretu
+    # AES key
     key = HKDF(shared_secret, 32, b'', SHA256)
 
-    # Odszyfruj wiadomość
-    raw = base64.b64decode(enc_message)
-    iv = raw[:16]
-    ct = raw[16:]
+    # Odszyfruj
+    iv = encrypted_data[:16]
+    ct = encrypted_data[16:]
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    return unpad(cipher.decrypt(ct).decode())
+    decrypted = cipher.decrypt(ct)
+    return unpad(decrypted).decode()

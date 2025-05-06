@@ -101,12 +101,15 @@ def login():
                 decrypted_msg = decrypt_aes(hidden_msg)                
                 print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
         except:
+            print("Błąd wewnętrzny serwera")
             return redirect(url_for("fail"))
 
         if decrypted_msg == username:
             session["username"] = username
+            print("Zalogowano jako: ", username)
             return redirect(url_for("success"))
         else:
+            print("Nieprawidłowe logowanie: ", username)
             return redirect(url_for("fail"))
 
         

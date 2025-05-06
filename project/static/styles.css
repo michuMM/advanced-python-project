@@ -77,14 +77,15 @@ a:hover {
 }
 
 input[type="text"],
-input[type="file"] {
+input[type="file"],
+select{
   width: 90%;
   padding: 8px;
   margin: 10px 0;
-  border: 1px solid #888;
+  border: 2px solid #000080;
   border-radius: 5px;
-  font-size: 14px;
   background-color: #f8f8f8;
+  color: #000080;
 }
 
 input[type="submit"] {
@@ -127,4 +128,21 @@ input[type="submit"]:hover {
   font-weight: bold;
   color: #000080;
   font-family: 'Comic Sans MS', cursive;
+}
+
+select {
+  font-size: 14px;
+  font-family: 'Verdana', sans-serif;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23000080" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #4682b4;
+  box-shadow: 0 0 5px rgba(70, 130, 180, 0.5);
 }

@@ -12,14 +12,11 @@
       <!-- Wybór algorytmu -->
       <div class="algorithm-selection">
         <h3>Wybierz algorytm</h3>
-        <label>
-          <input type="radio" name="algorithm" value="aes" checked>
-          AES (symetryczny)
-        </label><br>
-        <label>
-          <input type="radio" name="algorithm" value="rsa">
-          RSA (asymetryczny)
-        </label>
+        <select name="algorithm">
+            <option value="aes" selected>AES (symetryczny)</option>
+            <option value="rsa">RSA (asymetryczny)</option>
+            <option value="des">DES (symetryczny)</option>
+        </select>
       </div>
 
       <!-- Ukryty input nie jest już potrzebny -->

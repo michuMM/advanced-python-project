@@ -1,7 +1,9 @@
 from Crypto.Cipher import AES, DES
 from Crypto.Random import get_random_bytes
-from Crypto.PublicKey import RSA
+from Crypto.PublicKey import RSA, ECC
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Protocol.KDF import HKDF
+from Crypto.Hash import SHA256
 
 import base64
 
@@ -57,4 +59,49 @@ def decrypt_des(enc_msg):
     iv = raw[:8]
     ct = raw[8:]
     cipher = DES.new(DES_KEY, DES.MODE_CBC, iv)
+    return unpad(cipher.decrypt(ct).decode())
+
+# ---------- ECC ----------
+def encrypt_ecc(message):
+    # Wczytaj klucz publiczny odbiorcy
+    recipient_key = ECC.import_key(open("ecc_public.pem").read())
+
+    # Wygeneruj ephemeral (tymczasowy) klucz nadawcy
+    sender_key = ECC.generate(curve='P-256')
+
+    # Oblicz wspólny sekret
+    shared_secret_point = recipient_key.pointQ * sender_key.d
+    shared_secret = int(shared_secret_point.x).to_bytes(32, 'big')
+
+    # Wygeneruj klucz AES przez HKDF
+    key = HKDF(shared_secret, 32, b'', SHA256)
+
+    # Szyfruj wiadomość AESem
+    iv = get_random_bytes(16)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    ct = cipher.encrypt(pad(message).encode())
+
+    # Zwróć zakodowaną wiadomość i klucz publiczny nadawcy
+    sender_pub_key = sender_key.export_key(format='PEM')
+    return base64.b64encode(iv + ct).decode(), sender_pub_key
+
+def decrypt_ecc(enc_message, sender_pub_key_pem):
+    # Wczytaj własny klucz prywatny
+    private_key = ECC.import_key(open("ecc_private.pem").read())
+
+    # Wczytaj klucz publiczny nadawcy
+    sender_key = ECC.import_key(sender_pub_key_pem)
+
+    # Oblicz wspólny sekret
+    shared_secret_point = sender_key.pointQ * private_key.d
+    shared_secret = int(shared_secret_point.x).to_bytes(32, 'big')
+
+    # Wygeneruj AES z sekretu
+    key = HKDF(shared_secret, 32, b'', SHA256)
+
+    # Odszyfruj wiadomość
+    raw = base64.b64decode(enc_message)
+    iv = raw[:16]
+    ct = raw[16:]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
     return unpad(cipher.decrypt(ct).decode())

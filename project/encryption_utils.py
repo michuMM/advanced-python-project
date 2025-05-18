@@ -8,7 +8,6 @@ from Crypto.Hash import SHA256
 
 import time
 
-
 import base64
 
 KEY = b'twojklucz16bajt!'  # 16 bajtów = 128-bit AES
@@ -20,6 +19,18 @@ def pad(msg):
 
 def unpad(msg):
     return msg[:-ord(msg[-1])]
+
+def my_pad(data, block_size=16):
+    padding_len = block_size - (len(data) % block_size)
+    return data + bytes([padding_len] * padding_len)
+
+def my_unpad(data, block_size=16):
+    padding_len = data[-1]
+    if padding_len < 1 or padding_len > block_size:
+        raise ValueError("Niepoprawna długość paddingu.")
+    if data[-padding_len:] != bytes([padding_len] * padding_len):
+        raise ValueError("Niepoprawny padding.")
+    return data[:-padding_len]
 
 # ---------- AES ----------
 def encrypt_aes(msg):
@@ -95,7 +106,7 @@ def encrypt_ecc(message):
     # Szyfruj wiadomość AES
     iv = get_random_bytes(16)
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    ct = cipher.encrypt(pad(message).encode())
+    ct = cipher.encrypt(my_pad(message.encode()))
 
     # Zakoduj wiadomość + publiczny klucz nadawcy
     sender_pub_key = sender_key.export_key(format='PEM')
@@ -104,6 +115,7 @@ def encrypt_ecc(message):
     return full_message
 
 def decrypt_ecc(full_message):
+    print("1")
     try:
         enc_b64, sender_pub_key_b64 = full_message.split("||")
     except ValueError:
@@ -129,4 +141,9 @@ def decrypt_ecc(full_message):
     ct = encrypted_data[16:]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     decrypted = cipher.decrypt(ct)
-    return unpad(decrypted).decode()
+    try:
+        result = my_unpad(decrypted).decode()
+    except Exception as e:
+        print("❌ Błąd przy odpadaniu/dekodowaniu:", str(e))
+        raise
+    return result

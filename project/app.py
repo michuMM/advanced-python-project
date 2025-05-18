@@ -98,7 +98,7 @@ def login():
                 decrypted_msg = decrypt_ecc(hidden_msg)
                 print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
             else:
-                decrypted_msg = decrypt_aes(hidden_msg)                
+                decrypted_msg = decrypt_aes(hidden_msg)
                 print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
         except:
             print("Błąd wewnętrzny serwera")

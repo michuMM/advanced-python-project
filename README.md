@@ -13,9 +13,12 @@ Wykonanie analizy współczesnych algorytmów symetrycznych, asymetrycznych, gdz
 - długość klucza
 - poziom bezpieczeństwa kryptograficznego.
 
-# opis
-Bardzo wstępny projekt pokazujący działanie bezhasłowego steganograficznego logowania. 
+# strona
+Już praktycznie kompletny projekt/system pokazujący działanie bezhasłowego steganograficznego logowania i rejestracji. 
 
-Interakacja polega tylko na tym, że uzytkownik musi wpisać swoją nazwę i dodać obrazek wygenerowany przez stronę
+Interakcja polega tylko na tym, że uzytkownik musi wpisać swoją nazwę i dodać obrazek wygenerowany przez stronę.
 
 Baza danych to plik JSON.
+
+# praca pisemna
+Algorytmy zostały przeanalizowane w sposób wystarczający (choć można jeszcze ze dwa dodać), hipoteza została potwierdzona na podstawie odpowiednich argumentów.

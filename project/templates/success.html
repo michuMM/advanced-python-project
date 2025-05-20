@@ -8,6 +8,11 @@
 <body>
   <div class="form-container">
     <h2>Zalogowany jako {{ username }}</h2>
+    {% if reg_time %}
+      <div class="result-box">
+        Logowanie zakończone - czas przetwarzania: <strong>{{ reg_time }} s</strong>
+      </div>
+    {% endif %}
     <div class="logout-link"><a href="/logout">Wyloguj</a></div>    
   </div>
   <div class="corner-decor">Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka</div>  

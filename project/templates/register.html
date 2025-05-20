@@ -4,31 +4,65 @@
   <meta charset="UTF-8">
   <title>Rejestracja</title>
   <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    .algo-description {
+      margin-top: 20px;
+      font-size: 0.95em;
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 500px;
+    }
+  </style>
 </head>
 <body>
   <div class="form-container">
+    <button id="go-back" onclick="history.back()">← Wróć</button>
     <h2>Rejestracja</h2>
     <form method="post" enctype="multipart/form-data">
       <!-- Wybór algorytmu -->
       <div class="algorithm-selection">
         <h3>Wybierz algorytm</h3>
-        <select name="algorithm">
-            <option value="aes" selected>AES (symetryczny)</option>
-            <option value="rsa">RSA (asymetryczny)</option>
-            <option value="des">DES (symetryczny)</option>
-            <option value="ecc">ECC (asymetryczny)</option>
+        <select name="algorithm" id="algorithm">
+          <option value="aes" selected>AES (symetryczny)</option>
+          <option value="rsa">RSA (asymetryczny)</option>
+          <option value="des">DES (symetryczny)</option>
+          <option value="ecc">ECC (asymetryczny)</option>
         </select>
       </div>
 
-      <!-- Ukryty input nie jest już potrzebny -->
       <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
       <input type="file" name="image"><br>
       <input type="submit" value="Zarejestruj">
     </form>
+
+    <!-- Tu pojawi się dynamiczny opis -->
+    <div id="algorithm-description" class="algo-description"></div>
   </div>
 
   <div class="corner-decor">
     Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka
   </div>
+
+  <script>
+    const descriptions = {
+      aes: "<strong>AES</strong> (Advanced Encryption Standard): nowoczesny i szybki algorytm szyfrowania blokowego, powszechnie używany w praktyce.",
+      rsa: "<strong>RSA</strong>: klasyczny algorytm szyfrowania asymetrycznego, bazujący na trudności faktoryzacji dużych liczb.",
+      des: "<strong>DES</strong>: starszy algorytm szyfrowania symetrycznego. Uważany za przestarzały, ale nadal edukacyjny.",
+      ecc: "<strong>ECC</strong> (Elliptic Curve Cryptography): nowoczesne szyfrowanie asymetryczne, zapewniające wysokie bezpieczeństwo przy krótkich kluczach."
+    };
+
+    const select = document.getElementById("algorithm");
+    const descriptionDiv = document.getElementById("algorithm-description");
+
+    function updateDescription() {
+      const selected = select.value;
+      descriptionDiv.innerHTML = descriptions[selected] || "";
+    }
+
+    select.addEventListener("change", updateDescription);
+    window.addEventListener("DOMContentLoaded", updateDescription); // pokaż domyślny opis na starcie
+  </script>
 </body>
 </html>
+

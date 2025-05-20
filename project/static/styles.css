@@ -146,3 +146,28 @@ select:focus {
   border-color: #4682b4;
   box-shadow: 0 0 5px rgba(70, 130, 180, 0.5);
 }
+
+#go-back {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #000080;
+  background-color: #87ceeb;
+  border: 2px outset #4682b4;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease 
+  }
+
+  #go-back:hover {
+    background-color: #add8e6;
+  }
+
+  .form-container {
+    position: relative; /* ważne, żeby przycisk miał punkt odniesienia */
+  }

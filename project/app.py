@@ -4,6 +4,7 @@ from stegano_utils import hide_message, reveal_message
 from werkzeug.utils import secure_filename
 from encryption_utils import encrypt_aes, encrypt_rsa, encrypt_des, encrypt_ecc
 from encryption_utils import decrypt_aes, decrypt_rsa, decrypt_des, decrypt_ecc
+import time
 
 app = Flask(__name__)
 app.secret_key = "sekret123"
@@ -23,11 +24,13 @@ if not os.path.exists(USER_DB):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    reg_time = request.args.get("reg_time")
+    return render_template("index.html", reg_time=reg_time)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        start_time = time.time()
         algorithm = request.form.get('algorithm')
         print(f"Wybrany algorytm: {algorithm}")
 
@@ -62,12 +65,16 @@ def register():
         with open(USER_DB, "w") as f:
             json.dump(users, f)
 
-        return redirect(url_for("index"))
+        end_time = time.time()
+        duration = end_time - start_time
+
+        return redirect(url_for("index", reg_time=f"{duration:.4f}"))
     return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
-def login():
+def login():    
     if request.method == "POST":
+        start_time = time.time()
         username = request.form["username"]
         image = request.files["image"]
 
@@ -107,7 +114,9 @@ def login():
         if decrypted_msg == username:
             session["username"] = username
             print("Zalogowano jako: ", username)
-            return redirect(url_for("success"))
+            end_time = time.time()
+            duration = end_time - start_time
+            return redirect(url_for("success", reg_time=f"{duration:.4f}"))
         else:
             print("Nieprawidłowe logowanie: ", username)
             return redirect(url_for("fail"))
@@ -120,16 +129,19 @@ def login():
 
         if decrypted_msg == username:
             session["username"] = username
-            return redirect(url_for("success"))
+            end_time = time.time()
+            duration = end_time - start_time
+            return redirect(url_for("success", reg_time=f"{duration:.4f}"))
         else:
             return redirect(url_for("fail"))
     return render_template("login.html")
 
 @app.route("/success")
 def success():
+    reg_time = request.args.get("reg_time")
     if "username" not in session:
         return redirect(url_for("index"))
-    return render_template("success.html", username=session["username"])
+    return render_template("success.html", username=session["username"], reg_time = request.args.get("reg_time"))
 
 @app.route("/fail")
 def fail():

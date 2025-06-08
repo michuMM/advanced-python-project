@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import os, json
 from stegano_utils import hide_message, reveal_message
 from werkzeug.utils import secure_filename
-from encryption_utils import encrypt_aes, encrypt_rsa, encrypt_des, encrypt_ecc, encrypt_chacha20
-from encryption_utils import decrypt_aes, decrypt_rsa, decrypt_des, decrypt_ecc, decrypt_chacha20
+from encryption_utils import encrypt_aes, encrypt_rsa, encrypt_des, encrypt_ecc, encrypt_chacha20, encrypt_elgamal
+from encryption_utils import decrypt_aes, decrypt_rsa, decrypt_des, decrypt_ecc, decrypt_chacha20, decrypt_elgamal
 
 app = Flask(__name__)
 app.secret_key = "sekret123"
@@ -50,6 +50,8 @@ def register():
             encrypted_username = encrypt_ecc(username)
         elif algorithm == "chacha20":
             encrypted_username = encrypt_chacha20(username)
+        elif algorithm == "elgamal":
+            encrypted_username = encrypt_elgamal(username)
         else:
             return "Nieznany algorytm", 400
 
@@ -101,6 +103,9 @@ def login():
                 print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
             elif alg == "chacha20":
                 decrypted_msg = decrypt_chacha20(hidden_msg)
+                print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
+            elif alg == "elgamal":
+                decrypted_msg = decrypt_elgamal(hidden_msg)
                 print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
             else:
                 decrypted_msg = decrypt_aes(hidden_msg)                

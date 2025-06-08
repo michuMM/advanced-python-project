@@ -2,18 +2,18 @@ import os
 
 from Crypto.Cipher import AES, DES
 from Crypto.Random import get_random_bytes
-from Crypto.PublicKey import RSA, ECC
+from Crypto.PublicKey import RSA, ECC, ElGamal
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Cipher import ChaCha20
 
 from Crypto.Protocol.KDF import HKDF
 from Crypto.Hash import SHA256
+from Crypto.Random.random import getrandbits, randint
+from Crypto.Util.number import GCD, inverse
 
 import time
-
-
+import json
 import base64
-
 from fontTools.ttLib.tables.D_S_I_G_ import b64encode
 
 KEY = b'twojklucz16bajt!'  # 16 bajtów = 128-bit AES
@@ -151,3 +151,57 @@ def decrypt_chacha20(enc_msg):
     ciphertext = raw[40:]
     cipher = ChaCha20.new(key=key, nonce=nonce)
     return cipher.decrypt(ciphertext).decode()
+
+# ---------- ElGamal ----------
+def load_elgamal_keys():
+    with open("elgamal_public.json", "r") as pub_file:
+        pub_data = json.load(pub_file)
+    with open("elgamal_private.json", "r") as priv_file:
+        priv_data = json.load(priv_file)
+
+    pub_key = ElGamal.construct((int(pub_data['p']), int(pub_data['g']), int(pub_data['y'])))
+    priv_key = ElGamal.construct((int(priv_data['p']), int(priv_data['g']), int(priv_data['y']), int(priv_data['x'])))
+    return pub_key, priv_key
+
+def encrypt_elgamal(message: str) -> str:
+    pub_key, _ = load_elgamal_keys()
+    p = int(pub_key.p)
+    g = int(pub_key.g)
+    y = int(pub_key.y)
+
+    m = int.from_bytes(message.encode(), byteorder='big')
+    if m >= p:
+        raise ValueError("Wiadomość za długa dla tego klucza ElGamal")
+
+    k = randint(1, p - 2)
+    while GCD(k, p - 1) != 1:
+        k = randint(1, p - 2)
+
+    c1 = pow(g, k, p)
+    s = pow(y, k, p)
+    c2 = (m * s) % p
+
+    cipher_pair = {'c1': c1, 'c2': c2}
+    return base64.b64encode(json.dumps(cipher_pair).encode()).decode()
+
+def decrypt_elgamal(enc_msg: str) -> str:
+    with open("elgamal_private.json", "r") as f:
+        private_key = json.load(f)
+
+    with open("elgamal_public.json", "r") as f:
+        public_key = json.load(f)
+
+    p = int(public_key["p"])
+    x = int(private_key["x"])
+
+    cipher_pair = json.loads(base64.b64decode(enc_msg).decode())
+    c1 = int(cipher_pair['c1'])
+    c2 = int(cipher_pair['c2'])
+
+    s = pow(c1, x, p)
+    s_inv = pow(s, -1, p)  # Odwrotność modularna
+    m = (c2 * s_inv) % p
+
+    # Odzyskaj wiadomość z liczby całkowitej
+    msg_bytes = m.to_bytes((m.bit_length() + 7) // 8, byteorder='big')
+    return msg_bytes.decode()

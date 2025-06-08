@@ -4,16 +4,6 @@
   <meta charset="UTF-8">
   <title>Rejestracja</title>
   <link rel="stylesheet" href="/static/styles.css">
-  <style>
-    .algo-description {
-      margin-top: 20px;
-      font-size: 0.95em;
-      background-color: #f1f1f1;
-      padding: 10px;
-      border-radius: 8px;
-      max-width: 500px;
-    }
-  </style>
 </head>
 <body>
   <div class="form-container">
@@ -31,20 +21,29 @@
         </select>
       </div>
 
+      <!-- Wybór typu rejestracji -->
+      <div class="input-type-selection">
+        <h3>Wybierz typ pliku</h3>
+        <select name="media_type" id="inputType">
+          <option value="image" selected>Obraz</option>
+          <option value="audio">Dźwięk</option>
+        </select>
+      </div>
+
       <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
-      <input type="file" name="image"><br>
+
+      <!-- Dynamiczne pole pliku -->
+      <input type="file" id="fileInput" name="media" accept="image/*"><br>
+      <small id="fileHint">Dozwolone formaty: .jpg, .png, .jpeg</small><br><br>
+
       <input type="submit" value="Zarejestruj">
     </form>
 
     <!-- Tu pojawi się dynamiczny opis -->
     <div id="algorithm-description" class="algo-description"></div>
   </div>
-
-  <div class="corner-decor">
-    Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka
-  </div>
-
-  <script>
+  
+<script>
     const descriptions = {
       aes: "<strong>AES</strong> (Advanced Encryption Standard): nowoczesny i szybki algorytm szyfrowania blokowego, powszechnie używany w praktyce.",
       rsa: "<strong>RSA</strong>: klasyczny algorytm szyfrowania asymetrycznego, bazujący na trudności faktoryzacji dużych liczb.",
@@ -62,6 +61,24 @@
 
     select.addEventListener("change", updateDescription);
     window.addEventListener("DOMContentLoaded", updateDescription); // pokaż domyślny opis na starcie
+  </script>
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const fileHint = document.getElementById("fileHint");
+    const inputType = document.getElementById("inputType");
+
+    function updateFileInput() {
+      if (inputType.value === "audio") {
+        fileInput.accept = ".wav";
+        fileHint.textContent = "Dozwolony format: .wav";
+      } else {
+        fileInput.accept = "image/*";
+        fileHint.textContent = "Dozwolone formaty: .jpg, .png, .jpeg";
+      }
+    }
+
+    inputType.addEventListener("change", updateFileInput);
+    window.addEventListener("DOMContentLoaded", updateFileInput);
   </script>
 </body>
 </html>

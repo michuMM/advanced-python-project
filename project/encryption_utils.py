@@ -1,7 +1,10 @@
+import os
+
 from Crypto.Cipher import AES, DES
 from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA, ECC
 from Crypto.Cipher import PKCS1_OAEP
+from Crypto.Cipher import ChaCha20
 
 from Crypto.Protocol.KDF import HKDF
 from Crypto.Hash import SHA256
@@ -11,8 +14,11 @@ import time
 
 import base64
 
+from fontTools.ttLib.tables.D_S_I_G_ import b64encode
+
 KEY = b'twojklucz16bajt!'  # 16 bajtów = 128-bit AES
 DES_KEY = b'8bDESkey'       # 8 bajtów = 64-bit DES
+#CHACHA_KEY = get_random_bytes(32) # 256-bit ChaCha20
 
 
 def pad(msg):
@@ -130,3 +136,18 @@ def decrypt_ecc(full_message):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     decrypted = cipher.decrypt(ct)
     return unpad(decrypted).decode()
+
+# ---------- ChaCha20 ----------
+def encrypt_chacha20(message: str) -> str:
+    key = os.urandom(32)
+    cipher = ChaCha20.new(key=key)
+    ciphertext = cipher.encrypt(message.encode())
+    return b64encode(cipher.nonce + key + ciphertext)
+
+def decrypt_chacha20(enc_msg):
+    raw = base64.b64decode(enc_msg)
+    nonce = raw[:8]
+    key = raw[8:40]
+    ciphertext = raw[40:]
+    cipher = ChaCha20.new(key=key, nonce=nonce)
+    return cipher.decrypt(ciphertext).decode()

@@ -21,7 +21,18 @@
             <option value="elgamal">ElGamal (asymetryczny)</option>
         </select>
       </div>
-
+        <!-- Wybór długości klucza -->
+        <div class="key-length-container" id="keyLengthContainer">
+          <label for="key_length"><strong>Długość klucza (bity):</strong></label>
+          <select name="key_length" id="key_length">
+            <option value="">-- wybierz długość --</option>
+            <option value="128">128</option>
+            <option value="192">192</option>
+            <option value="256">256</option>
+          </select>
+          <div class="note" id="keyLengthNote">
+            Długość klucza dotyczy tylko wybranych algorytmów (AES, RSA, DES, ChaCha20, ElGamal).</div>
+        </div>
       <!-- Ukryty input nie jest już potrzebny -->
       <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
       <input type="file" name="image"><br>
@@ -32,5 +43,54 @@
   <div class="corner-decor">
     Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka
   </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const algorithmSelect = document.querySelector('select[name="algorithm"]');
+      const keyLengthContainer = document.getElementById("keyLengthContainer");
+      const keyLengthSelect = document.getElementById("key_length");
+
+      const keyLengths = {
+        aes: [128, 192, 256],
+        rsa: [1024, 2048, 3072, 4096],
+        des: [56],
+        ecc: [],  // Brak wyboru
+        chacha20: [256],
+        elgamal: [1024, 2048, 3072]
+      };
+
+      function updateKeyLengthOptions(algorithm) {
+        const lengths = keyLengths[algorithm] || [];
+        keyLengthSelect.innerHTML = "";
+
+        if (lengths.length === 0) {
+          keyLengthContainer.style.display = "none";
+          return;
+        }
+
+        keyLengthContainer.style.display = "block";
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "-- wybierz długość --";
+        keyLengthSelect.appendChild(defaultOption);
+
+        lengths.forEach(length => {
+          const option = document.createElement("option");
+          option.value = length;
+          option.textContent = length;
+          keyLengthSelect.appendChild(option);
+        });
+      }
+
+      // Inicjalizacja na starcie
+      updateKeyLengthOptions(algorithmSelect.value);
+
+      // Aktualizacja przy zmianie algorytmu
+      algorithmSelect.addEventListener("change", () => {
+        updateKeyLengthOptions(algorithmSelect.value);
+      });
+    });
+    </script>
 </body>
 </html>

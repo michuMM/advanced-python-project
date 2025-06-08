@@ -31,6 +31,7 @@ def register():
         algorithm = request.form.get('algorithm')
         print(f"Wybrany algorytm: {algorithm}")
 
+        key_length = request.form.get('key_length')
         username = request.form["username"]
         image = request.files["image"]
 

@@ -1,4 +1,6 @@
-from Crypto.PublicKey import RSA, ECC
+import json
+from Crypto.PublicKey import RSA, ECC, ElGamal
+from Crypto import Random
 import os
 
 def generate_rsa_keys():
@@ -46,8 +48,46 @@ def generate_ecc_keys():
     print("Private:", ecc_private_path)
     print("Public:", ecc_public_path)
 
+def save_elgamal_private_key(key, filename):
+    data = {
+        'p': int(key.p),
+        'g': int(key.g),
+        'y': int(key.y),
+        'x': int(key.x)
+    }
+    with open(filename, 'w') as f:
+        json.dump(data, f)
+
+def save_elgamal_public_key(key, filename):
+    data = {
+        'p': int(key.p),
+        'g': int(key.g),
+        'y': int(key.y)
+    }
+    with open(filename, 'w') as f:
+        json.dump(data, f)
+
+def generate_elgamal_keys():
+    elgamal_private_path = os.path.join(os.getcwd(), "elgamal_private.json")
+    elgamal_public_path = os.path.join(os.getcwd(), "elgamal_public.json")
+
+    if os.path.exists(elgamal_private_path) and os.path.exists(elgamal_public_path):
+        response = input("Klucze ElGamal już istnieją. Czy chcesz je nadpisać? (t/n): ")
+        if response.lower() != 't':
+            print("Pomijanie generowania kluczy ElGamal.")
+            return
+
+    key = ElGamal.generate(256, Random.new().read)  # 256-bit długość klucza - możesz zwiększyć
+
+    save_elgamal_private_key(key, elgamal_private_path)
+    save_elgamal_public_key(key, elgamal_public_path)
+
+    print("Klucze ElGamal wygenerowane:")
+    print("Private:", elgamal_private_path)
+    print("Public:", elgamal_public_path)
 
 
 if __name__ == "__main__":
     generate_rsa_keys()
     generate_ecc_keys()
+    generate_elgamal_keys()

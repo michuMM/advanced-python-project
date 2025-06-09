@@ -2,10 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import os, json
 from stegano_utils import hide_message, reveal_message, encode_lsb, decode_lsb
 from werkzeug.utils import secure_filename
-from encryption_utils import encrypt_aes, encrypt_rsa, encrypt_des, encrypt_ecc
-from encryption_utils import decrypt_aes, decrypt_rsa, decrypt_des, decrypt_ecc
 import time
 from datetime import datetime, timezone, timedelta
+from encryption_utils import encrypt_aes, encrypt_rsa, encrypt_des, encrypt_ecc, encrypt_chacha20, encrypt_elgamal
+from encryption_utils import decrypt_aes, decrypt_rsa, decrypt_des, decrypt_ecc, decrypt_chacha20, decrypt_elgamal
+
 
 app = Flask(__name__)
 app.secret_key = "sekret123"
@@ -49,6 +50,10 @@ def register():
         start_total = time.time()
         algorithm = request.form.get('algorithm')
         media_type = request.form.get('media_type')
+        print(f"Wybrany algorytm: {algorithm}")
+
+        key_length = request.form.get('key_length')
+
         username = request.form["username"]
         # Sprawdzenie czy użytkownik chce włączyć blokadę logowań
         login_limit_enabled = request.form.get("login_limit_enabled") == "yes"
@@ -102,6 +107,10 @@ def register():
         elif algorithm == "ecc":
             encrypted_username = encrypt_ecc(username)
             key_length = 256
+        elif algorithm == "chacha20":
+            encrypted_username = encrypt_chacha20(username)
+        elif algorithm == "elgamal":
+            encrypted_username = encrypt_elgamal(username)
         else:
             return "Nieznany algorytm", 400
         encryption_time = time.time() - start_encrypt
@@ -244,12 +253,23 @@ def login():
                 if alg == "rsa":
                     decrypted_msg = decrypt_rsa(hidden_msg)
                     key_len = 2048
+                    print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
                 elif alg == "des":
                     decrypted_msg = decrypt_des(hidden_msg)
                     key_len = 56
+                    print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
                 elif alg == "ecc":
                     decrypted_msg = decrypt_ecc(hidden_msg)
                     key_len = 256
+                    print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
+                elif alg == "chacha20":
+                    decrypted_msg = decrypt_chacha20(hidden_msg)
+                    key_len = 256
+                    print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
+                elif alg == "elgamal":
+                    decrypted_msg = decrypt_elgamal(hidden_msg)
+                    key_len = 1024
+                    print("Odszyfrowana wiadomosc ukryta w obrazku: ", decrypted_msg)
                 else:
                     decrypted_msg = decrypt_aes(hidden_msg)
                     key_len = 256

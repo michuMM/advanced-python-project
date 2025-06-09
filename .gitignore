@@ -181,3 +181,5 @@ cython_debug/
 /project/generated/*
 /project/uploads/*
 /project/data/*
+/project/elgamal_public.json
+/project/elgamal_private.json

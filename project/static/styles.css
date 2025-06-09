@@ -9,15 +9,18 @@
 }
 
 body {
-  background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+  background: linear-gradient(90deg, #0a0a0a, #1a1a1a);
   font-family: 'Verdana', sans-serif;
   color: var(--text-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: auto;
+  min-height: 100vh;
   margin: 0;
+  padding: 0;
   backdrop-filter: blur(4px);
+  overflow-y: auto;
 }
 
 .body-failure {
@@ -28,14 +31,17 @@ body {
 .error-container,
 .main-container,
 .form-container {
-  background: var(--card-bg);
+  background: var(--card-bg);  
   border: 1px solid var(--card-border);
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   width: 400px;
   padding: 25px;
+  margin: 60px auto 40px auto;
   text-align: center;
   backdrop-filter: blur(10px);
+  max-width: 500px;  
+  padding: 20px;
 }
 
 h1,
@@ -67,6 +73,7 @@ a:hover {
 
 input[type="text"],
 input[type="file"],
+input[type="number"],
 select {
   width: 90%;
   padding: 10px;
@@ -75,6 +82,7 @@ select {
   border-radius: 6px;
   background-color: var(--input-bg);
   color: var(--text-color);
+  box-sizing: border-box;
 }
 
 input[type="submit"] {
@@ -109,16 +117,6 @@ input[type="submit"]:hover {
 .logout-link a:hover {
   text-decoration: underline;
   color: white;
-}
-
-.corner-decor {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--accent-color);
-  font-family: 'Comic Sans MS', cursive;
 }
 
 select {
@@ -166,4 +164,66 @@ select:focus {
   border-radius: 8px;
   max-width: 500px;
   backdrop-filter: blur(4px);
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.title {
+  margin-bottom: 20px;
+  font-size: 28px;
+  text-align: center;
+}
+
+.controls {
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.header-container {  
+  top: 20px;
+  left: 30px;
+  text-align: left;
+  max-width: 400px;
+}
+
+.header-container h1 {
+  font-size: 20px;
+  margin: 0;
+  text-transform: none;
+  text-shadow: none;
+}
+
+.select-container {
+  margin-top: 10px;
+}
+
+#category {
+  max-width: 700px;
+}
+
+#charts-container canvas {
+  margin: 50px auto 0 auto;
+  width: 1000px !important;
+  height: 600px !important;
+  display: block;
+}
+
+#charts-container {
+  margin-top: 50px;  
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+#charts-container-wrapper {
+  margin-top: 1500px;
+  display: flex;
+  justify-content: center; /* centrowanie poziome */
 }

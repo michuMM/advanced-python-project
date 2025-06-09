@@ -8,7 +8,51 @@
 <body class="body-failure">
   <div class="error-container">    
     <h2>Nie udało się zalogować</h2>
+
+    <div id="attempts-box" style="display: none;">
+      <p>Pozostała liczba prób: <span id="attempts-count"></span></p>
+    </div>
+
+    <div id="block-box" style="display: none;">
+      <p>Twoje konto zostało zablokowane. Pozostały czas:</p>
+      <p><span id="countdown"></span></p>
+    </div>
+
     <a href="/">Powrót</a>
   </div>
+
+  <script>
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    const attempts = getQueryParam('attempts');
+    const block = getQueryParam('block');
+    const seconds = parseInt(getQueryParam('seconds'));
+
+    if (attempts) {
+      document.getElementById('attempts-box').style.display = 'block';
+      document.getElementById('attempts-count').textContent = attempts;
+    }
+
+    if (block && seconds) {
+      document.getElementById('block-box').style.display = 'block';
+      let remaining = seconds;
+
+      function updateCountdown() {
+        const hrs = String(Math.floor(remaining / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((remaining % 3600) / 60)).padStart(2, '0');
+        const secs = String(remaining % 60).padStart(2, '0');
+        document.getElementById('countdown').textContent = `${hrs}:${mins}:${secs}`;
+        if (remaining > 0) {
+          remaining--;
+          setTimeout(updateCountdown, 1000);
+        }
+      }
+
+      updateCountdown();
+    }
+  </script>
 </body>
 </html>

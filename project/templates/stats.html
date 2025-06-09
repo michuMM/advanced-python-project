@@ -70,12 +70,27 @@
     .dataTables_wrapper .dataTables_info {
       color: #aaa;
     }
+    #gbutton {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: var(--text-color);
+      background-color: #1f6feb;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
   </style>
 
 </head>
 <body>
-<button id="go-back" onclick="window.location.href='/'">← Wróć</button>
-<a href="/charts">Wykresy</a>
+<button id="gbutton" onclick="window.location.href='/'">← Wróć</button>
+<button id="gbutton" onclick="window.location.href='/charts'" style="margin-left: 100px;">Wykresy</button>
 
 <h1>Historia logowań</h1>
 

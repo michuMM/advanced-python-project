@@ -10,6 +10,7 @@
     <button id="go-back" onclick="history.back()">← Wróć</button>
     <h2>Rejestracja</h2>
     <form method="post" enctype="multipart/form-data">
+      <div id="algorithm-description" class="algo-description"></div>
       <!-- Wybór algorytmu -->
       <div class="algorithm-selection">
         <h3>Wybierz algorytm</h3>
@@ -21,6 +22,8 @@
         </select>
       </div>
 
+      <input type="text" name="username" placeholder="Nazwa użytkownika"><br>          
+
       <!-- Wybór typu rejestracji -->
       <div class="input-type-selection">
         <h3>Wybierz typ pliku</h3>
@@ -28,19 +31,39 @@
           <option value="image" selected>Obraz</option>
           <option value="audio">Dźwięk</option>
         </select>
-      </div>
-
-      <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
+      </div>      
 
       <!-- Dynamiczne pole pliku -->
       <input type="file" id="fileInput" name="media" accept="image/*"><br>
       <small id="fileHint">Dozwolone formaty: .jpg, .png, .jpeg</small><br><br>
 
-      <input type="submit" value="Zarejestruj">
-    </form>
+      <div class="login-limit-section">
+        <h3>Wprowadzić blokadę logowań?</h3>
+        <select name="login_limit_enabled" id="loginLimitEnabled">
+          <option value="no" selected>Nie</option>
+          <option value="yes">Tak</option>
+        </select>
 
-    <!-- Tu pojawi się dynamiczny opis -->
-    <div id="algorithm-description" class="algo-description"></div>
+        <!-- Pole do ustawienia maksymalnej liczby logowań -->
+        <div id="loginLimitInputContainer" style="display: none; margin-top: 10px;">
+          <input type="number" name="max_logins" id="maxLogins" placeholder="Maksymalna liczba logowań" min="1">
+
+          <div class="login-wait-time" style="margin-top: 10px;">
+            <label for="waitTime">Czas oczekiwania:</label>
+            <input type="number" name="wait_time_value" id="waitTime" placeholder="Wartość" min="1" style="width: 208px;">
+
+            <select name="wait_time_unit" id="waitTimeUnit">
+              <option value="seconds">Sekundy</option>
+              <option value="minutes" selected>Minuty</option>
+              <option value="hours">Godziny</option>
+              <option value="days">Dni</option>
+            </select>
+          </div>
+        </div>
+      </div>      
+
+      <input type="submit" value="Zarejestruj">
+    </form>    
   </div>
   
 <script>
@@ -79,6 +102,18 @@
 
     inputType.addEventListener("change", updateFileInput);
     window.addEventListener("DOMContentLoaded", updateFileInput);
+  </script>
+    <script>
+    const loginLimitSelect = document.getElementById("loginLimitEnabled");
+    const loginLimitInputContainer = document.getElementById("loginLimitInputContainer");
+
+    function toggleLoginLimitInput() {
+      const shouldShow = loginLimitSelect.value === "yes";
+      loginLimitInputContainer.style.display = shouldShow ? "block" : "none";
+    }
+
+    loginLimitSelect.addEventListener("change", toggleLoginLimitInput);
+    window.addEventListener("DOMContentLoaded", toggleLoginLimitInput);
   </script>
 </body>
 </html>

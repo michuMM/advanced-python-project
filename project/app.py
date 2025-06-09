@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from encryption_utils import encrypt_aes, encrypt_rsa, encrypt_des, encrypt_ecc
 from encryption_utils import decrypt_aes, decrypt_rsa, decrypt_des, decrypt_ecc
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 app = Flask(__name__)
 app.secret_key = "sekret123"
@@ -50,6 +50,32 @@ def register():
         algorithm = request.form.get('algorithm')
         media_type = request.form.get('media_type')
         username = request.form["username"]
+        # Sprawdzenie czy użytkownik chce włączyć blokadę logowań
+        login_limit_enabled = request.form.get("login_limit_enabled") == "yes"
+        login_protection = {}
+
+        if login_limit_enabled:
+            max_attempts = int(request.form.get("max_logins", 3))
+            wait_time_value = int(request.form.get("wait_time_value", 1))
+            wait_time_unit = request.form.get("wait_time_unit", "minutes")
+
+            # Konwersja czasu na sekundy
+            unit_multipliers = {
+                "seconds": 1,
+                "minutes": 60,
+                "hours": 3600,
+                "days": 86400
+            }
+            waiting_time = wait_time_value * unit_multipliers.get(wait_time_unit, 60)
+
+            # Przygotowanie bloku danych
+            login_protection = {
+                "maxAttempts": max_attempts,
+                "attemptsNow": 0,
+                "blockTime": None,
+                "waitingTime": waiting_time
+            }
+
         uploaded_file = request.files["media"]
 
         filename = secure_filename(uploaded_file.filename)
@@ -97,11 +123,17 @@ def register():
         # Zapis do users.json
         with open(USER_DB) as f:
             users = json.load(f)
-        users[username] = {
+        user_data = {
             "file": f"{username}.{output_ext}",
             "alg": algorithm,
             "type": media_type
         }
+
+        # Dodaj dane o blokadzie, jeśli są ustawione
+        if login_protection:
+            user_data["loginProtection"] = login_protection
+
+        users[username] = user_data
         with open(USER_DB, "w") as f:
             json.dump(users, f, indent=4)
 
@@ -152,15 +184,23 @@ def login():
         path = os.path.join(UPLOAD_FOLDER, filename)
         uploaded_file.save(path)
 
-        # Domyślne dane do statystyk
-        format_file = "audio" if filename.lower().endswith(".wav") else "image"        
+        format_file = "audio" if filename.lower().endswith(".wav") else "image"
 
         # Wczytaj użytkowników
         with open(USER_DB) as f:
             users = json.load(f)
 
         user_data = users.get(username)
+
+        # Jeśli użytkownik nie istnieje, pomijamy całą logikę ochrony
         if not user_data:
+            print(f"Próba logowania na nieistniejącego użytkownika: {username}")
+            login_prot = {
+                "maxAttempts": 3,
+                "attemptsNow": 0,
+                "waitingTime": 30,
+                "blockTime": None
+            }
             action_result = "fail"
             success = False
             alg = "-"
@@ -170,18 +210,35 @@ def login():
             decrypt_time = None
             hidden_msg = ""
         else:
-            alg = user_data.get("alg", "aes")
-            try:                
-                if format_file == "audio":
-                    decode_start = time.time()
-                    hidden_msg = decode_lsb(path)
-                    decode_end = time.time()
-                    decode_time = decode_end - decode_start
+            # Dane użytkownika istnieją
+            login_prot = user_data.get("loginProtection", {})
+            max_attempts = login_prot.get("maxAttempts", 9999)
+            attempts_now = login_prot.get("attemptsNow", 0)
+            block_time = login_prot.get("blockTime")
+            waiting_time = login_prot.get("waitingTime", 1)
+
+            if block_time is not None:
+                block_time_dt = datetime.fromisoformat(block_time.replace("Z", "+00:00"))
+                now_dt = datetime.now(timezone.utc)
+                elapsed = (now_dt - block_time_dt).total_seconds()
+
+                if elapsed < waiting_time:
+                    print(f"Użytkownik {username} jest zablokowany do {block_time}")
+                    remaining_seconds = int(waiting_time - elapsed)
+                    return redirect(url_for("fail", block="1", seconds=remaining_seconds))
                 else:
-                    decode_start = time.time()
-                    hidden_msg = reveal_message(path)
-                    decode_end = time.time()
-                    decode_time = decode_end - decode_start
+                    # Blokada wygasła
+                    login_prot["blockTime"] = None
+                    users[username]["loginProtection"] = login_prot
+                    with open(USER_DB, "w") as f:
+                        json.dump(users, f, indent=4)
+
+            alg = user_data.get("alg", "aes")
+            try:
+                decode_start = time.time()
+                hidden_msg = decode_lsb(path) if format_file == "audio" else reveal_message(path)
+                decode_end = time.time()
+                decode_time = decode_end - decode_start
 
                 decrypt_start = time.time()
                 if alg == "rsa":
@@ -192,13 +249,13 @@ def login():
                     key_len = 56
                 elif alg == "ecc":
                     decrypted_msg = decrypt_ecc(hidden_msg)
-                    key_len = 256  # Przykładowo
+                    key_len = 256
                 else:
                     decrypted_msg = decrypt_aes(hidden_msg)
                     key_len = 256
-
                 decrypt_end = time.time()
                 decrypt_time = decrypt_end - decrypt_start
+
                 success = decrypted_msg == username
                 action_result = "udane" if success else "nieudane"
             except Exception as e:
@@ -210,7 +267,7 @@ def login():
                 action_result = "nieudane"
                 success = False
 
-        # Wczytaj stats.json
+        # Statystyki
         try:
             with open(STATS_DB, "r") as f:
                 stats = json.load(f)
@@ -219,8 +276,9 @@ def login():
         except (FileNotFoundError, json.JSONDecodeError):
             stats = []
 
+        totalTime = round(time.time() - start_time, 6)
         entry = {
-            "id": int(time.time()),  # np. timestamp jako unikalny ID
+            "id": int(time.time()),
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "username": username,
             "action": "login",
@@ -235,7 +293,7 @@ def login():
             "decodingTime": round(decode_time, 6) if isinstance(decode_time, float) else None,
             "fileSizeBytes": os.path.getsize(path) if os.path.exists(path) else None,
             "hiddenDataSizeBytes": len(hidden_msg.encode()) if isinstance(hidden_msg, str) else None,
-            "totalTime": round(time.time() - start_time, 6)
+            "totalTime": totalTime
         }
 
         stats.append(entry)
@@ -243,15 +301,46 @@ def login():
         with open(STATS_DB, "w") as f:
             json.dump(stats, f, indent=4)
 
-        # Przekierowanie po sukcesie/porazce
+        # Przekierowanie
         if success:
+            login_prot["attemptsNow"] = 0
+            login_prot["blockTime"] = None
             session["username"] = username
             print("Zalogowano jako:", username)
             duration = time.time() - start_time
+            with open(USER_DB, "w") as f:
+                json.dump(users, f, indent=4)
             return redirect(url_for("success", reg_time=f"{duration:.4f}"))
         else:
+            # Jeśli użytkownik istnieje, aktualizujemy próbę
+            if user_data:
+                login_prot = user_data.get("loginProtection", {})
+                max_attempts = login_prot.get("maxAttempts", 9999)
+                login_prot["attemptsNow"] = login_prot.get("attemptsNow", 0) + 1
+                print("Attempts:", login_prot["attemptsNow"])
+                if login_prot["attemptsNow"] >= max_attempts:
+                    block_until = datetime.now(timezone.utc)
+                    login_prot["blockTime"] = block_until.isoformat(timespec='microseconds').replace('+00:00', 'Z')
+                    login_prot["attemptsNow"] = 0
+                users[username]["loginProtection"] = login_prot
+                with open(USER_DB, "w") as f:
+                    json.dump(users, f, indent=4)
+
             print("Nieprawidłowe logowanie:", username)
+            
+            # logika dla przekierowania do fail.html
+            login_prot = users.get(username, {}).get("loginProtection", {})
+            max_attempts = login_prot.get("maxAttempts", None)
+
+            if login_prot and max_attempts and max_attempts < 9999 and (attempts_now + 1) == max_attempts:                
+                return redirect(url_for("fail", block="1", seconds=login_prot["waitingTime"]))
+
+            if login_prot and max_attempts and max_attempts < 9999:
+                remaining_tries = max_attempts - login_prot.get("attemptsNow", 0)
+                return redirect(url_for("fail", attempts=remaining_tries))
+
             return redirect(url_for("fail"))
+
 
     return render_template("login.html")
 

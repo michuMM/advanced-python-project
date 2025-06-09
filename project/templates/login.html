@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head><title>Logowanie</title>
+<head>
+  <title>Logowanie</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <div class="form-container">
+    <button id="go-back" onclick="history.back()">← Wróć</button>
     <h2>Logowanie</h2>
     <form method="post" enctype="multipart/form-data">
       <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
-      <input type="file" name="image"><br>
+      <input type="file" name="media"><br>
       <input type="submit" value="Zaloguj">
     </form>    
   </div>
-  <div class="corner-decor">Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka</div>  
 </body>
 </html>

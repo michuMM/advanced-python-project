@@ -7,28 +7,114 @@
 </head>
 <body>
   <div class="form-container">
+    <button id="go-back" onclick="history.back()">← Wróć</button>
     <h2>Rejestracja</h2>
     <form method="post" enctype="multipart/form-data">
+      <div id="algorithm-description" class="algo-description"></div>
       <!-- Wybór algorytmu -->
       <div class="algorithm-selection">
         <h3>Wybierz algorytm</h3>
-        <select name="algorithm">
-            <option value="aes" selected>AES (symetryczny)</option>
-            <option value="rsa">RSA (asymetryczny)</option>
-            <option value="des">DES (symetryczny)</option>
-            <option value="ecc">ECC (asymetryczny)</option>
+        <select name="algorithm" id="algorithm">
+          <option value="aes" selected>AES (symetryczny)</option>
+          <option value="rsa">RSA (asymetryczny)</option>
+          <option value="des">DES (symetryczny)</option>
+          <option value="ecc">ECC (asymetryczny)</option>
         </select>
       </div>
 
-      <!-- Ukryty input nie jest już potrzebny -->
-      <input type="text" name="username" placeholder="Nazwa użytkownika"><br>
-      <input type="file" name="image"><br>
-      <input type="submit" value="Zarejestruj">
-    </form>
-  </div>
+      <input type="text" name="username" placeholder="Nazwa użytkownika"><br>          
 
-  <div class="corner-decor">
-    Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka
+      <!-- Wybór typu rejestracji -->
+      <div class="input-type-selection">
+        <h3>Wybierz typ pliku</h3>
+        <select name="media_type" id="inputType">
+          <option value="image" selected>Obraz</option>
+          <option value="audio">Dźwięk</option>
+        </select>
+      </div>      
+
+      <!-- Dynamiczne pole pliku -->
+      <input type="file" id="fileInput" name="media" accept="image/*"><br>
+      <small id="fileHint">Dozwolone formaty: .jpg, .png, .jpeg</small><br><br>
+
+      <div class="login-limit-section">
+        <h3>Wprowadzić blokadę logowań?</h3>
+        <select name="login_limit_enabled" id="loginLimitEnabled">
+          <option value="no" selected>Nie</option>
+          <option value="yes">Tak</option>
+        </select>
+
+        <!-- Pole do ustawienia maksymalnej liczby logowań -->
+        <div id="loginLimitInputContainer" style="display: none; margin-top: 10px;">
+          <input type="number" name="max_logins" id="maxLogins" placeholder="Maksymalna liczba logowań" min="1">
+
+          <div class="login-wait-time" style="margin-top: 10px;">
+            <label for="waitTime">Czas oczekiwania:</label>
+            <input type="number" name="wait_time_value" id="waitTime" placeholder="Wartość" min="1" style="width: 208px;">
+
+            <select name="wait_time_unit" id="waitTimeUnit">
+              <option value="seconds">Sekundy</option>
+              <option value="minutes" selected>Minuty</option>
+              <option value="hours">Godziny</option>
+              <option value="days">Dni</option>
+            </select>
+          </div>
+        </div>
+      </div>      
+
+      <input type="submit" value="Zarejestruj">
+    </form>    
   </div>
+  
+<script>
+    const descriptions = {
+      aes: "<strong>AES</strong> (Advanced Encryption Standard): nowoczesny i szybki algorytm szyfrowania blokowego, powszechnie używany w praktyce.",
+      rsa: "<strong>RSA</strong>: klasyczny algorytm szyfrowania asymetrycznego, bazujący na trudności faktoryzacji dużych liczb.",
+      des: "<strong>DES</strong>: starszy algorytm szyfrowania symetrycznego. Uważany za przestarzały, ale nadal edukacyjny.",
+      ecc: "<strong>ECC</strong> (Elliptic Curve Cryptography): nowoczesne szyfrowanie asymetryczne, zapewniające wysokie bezpieczeństwo przy krótkich kluczach."
+    };
+
+    const select = document.getElementById("algorithm");
+    const descriptionDiv = document.getElementById("algorithm-description");
+
+    function updateDescription() {
+      const selected = select.value;
+      descriptionDiv.innerHTML = descriptions[selected] || "";
+    }
+
+    select.addEventListener("change", updateDescription);
+    window.addEventListener("DOMContentLoaded", updateDescription); // pokaż domyślny opis na starcie
+  </script>
+  <script>
+    const fileInput = document.getElementById("fileInput");
+    const fileHint = document.getElementById("fileHint");
+    const inputType = document.getElementById("inputType");
+
+    function updateFileInput() {
+      if (inputType.value === "audio") {
+        fileInput.accept = ".wav";
+        fileHint.textContent = "Dozwolony format: .wav";
+      } else {
+        fileInput.accept = "image/*";
+        fileHint.textContent = "Dozwolone formaty: .jpg, .png, .jpeg";
+      }
+    }
+
+    inputType.addEventListener("change", updateFileInput);
+    window.addEventListener("DOMContentLoaded", updateFileInput);
+  </script>
+    <script>
+    const loginLimitSelect = document.getElementById("loginLimitEnabled");
+    const loginLimitInputContainer = document.getElementById("loginLimitInputContainer");
+
+    function toggleLoginLimitInput() {
+      const shouldShow = loginLimitSelect.value === "yes";
+      loginLimitInputContainer.style.display = shouldShow ? "block" : "none";
+    }
+
+    loginLimitSelect.addEventListener("change", toggleLoginLimitInput);
+    window.addEventListener("DOMContentLoaded", toggleLoginLimitInput);
+  </script>
 </body>
 </html>
+

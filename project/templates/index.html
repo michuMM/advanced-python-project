@@ -8,9 +8,17 @@
 <body>
   <div class="main-container">
     <h1>Nieinteraktywna bezhasłowość</h1>
+
+    {% if reg_time %}
+      <div class="result-box">
+        Rejestracja zakończona - czas przetwarzania: <strong>{{ reg_time }} s</strong>
+      </div>
+    {% endif %}
+
     <a href="/register">Zarejestruj się</a>
     <a href="/login">Zaloguj się</a>
+    <a href="/stats">Historia logowań</a>
+    <a href="/charts">Wykresy</a>
   </div>
-  <div class="corner-decor">Zaawansowane programowanie w Pythonie - rejestracja i logowanie za pomocą zaszyfrowanego obrazka</div>
 </body>
 </html>

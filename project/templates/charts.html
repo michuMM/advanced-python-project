@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wykresy</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/charts.css">
+</head>
+<body> 
+  <button id="gbutton" onclick="window.location.href='/'">← Wróć</button> 
+  <button id="gbutton" onclick="window.location.href='/stats'" style="margin-left: 100px;">Statystyki</button> 
+  <div class="header-container">
+    <h1>Statystyki - Wykresy</h1>
+    <div class="select-container">
+      <label for="category">Wybierz kategorię wykresów:</label>
+      <select id="category">
+        <option value="hashing">Hashing charts</option>
+        <option value="time">Time charts</option>
+        <option value="stegano">Steganography charts</option>        
+      </select>
+    </div>    
+  </div>
+
+  <div id="charts-container-wrapper">
+    <div id="charts-container"></div>
+  </div>
+
+  <script type="module">
+    const categorySelect = document.getElementById('category');
+    const chartsContainer = document.getElementById('charts-container');
+
+    let statsData = [];
+
+    async function fetchStatsData() {
+      try {
+        const response = await fetch('/stats/data');
+        if (!response.ok) throw new Error('Błąd pobierania danych');
+        return await response.json();
+      } catch (err) {
+        chartsContainer.innerHTML = '<p>Nie udało się pobrać danych.</p>';
+        return [];
+      }
+    }
+
+    async function loadCategoryScript(category) {
+      chartsContainer.innerHTML = ''; // czyść przed załadowaniem nowego
+
+      try {
+        const module = await import(`/static/charts/${category}.js`);
+        if (typeof module.renderCharts === 'function') {
+          module.renderCharts(statsData);
+        }
+      } catch (err) {
+        console.warn(`Brak wykresów dla kategorii: ${category}`);
+      }
+    }
+
+    async function init() {
+      statsData = await fetchStatsData();
+      await loadCategoryScript(categorySelect.value);
+    }
+
+    categorySelect.addEventListener('change', async () => {
+      await loadCategoryScript(categorySelect.value);
+    });
+
+    init();
+  </script>
+</body>
+</html>

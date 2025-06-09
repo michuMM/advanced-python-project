@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Historia logowań</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+  <style>
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    table.dataTable {
+      font-size: 12px; /* 👈 Zmniejsza czcionkę w tabeli */
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #1e1e1e;
+      color: #ddd;
+    }
+
+    table.dataTable thead {
+      background-color: #222;
+      color: #fff;
+    }
+
+    table.dataTable tbody tr:nth-child(even) {
+      background-color: #2a2a2a;
+    }
+
+    table.dataTable tbody tr:hover {
+      background-color: #333;
+    }
+
+    table.dataTable th,
+    table.dataTable td {
+      padding: 6px 8px;
+      border: 1px solid #333;
+    }
+
+    /* Styl dla elementów interfejsu DataTables (paginacja, wyszukiwarka itd.) */
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+      background-color: #1e1e1e;
+      color: #eee;
+      border: 1px solid #444;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      color: #fff !important;
+      background-color: #1e1e1e !important;
+      border: 1px solid #333;
+      margin: 2px;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background-color: #444 !important;
+      color: #fff !important;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+      color: #aaa;
+    }
+    #gbutton {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: var(--text-color);
+      background-color: #1f6feb;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+  </style>
+
+</head>
+<body>
+<button id="gbutton" onclick="window.location.href='/'">← Wróć</button>
+<button id="gbutton" onclick="window.location.href='/charts'" style="margin-left: 100px;">Wykresy</button>
+
+<h1>Historia logowań</h1>
+
+<table id="statsTable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Username</th>
+            <th>Action</th>
+            <th>Status</th>
+            <th>Algorithm</th>
+            <th>Key Length</th>
+            <th>Message Length</th>
+            <th>File Format</th>
+            <th>Encryption Time</th>
+            <th>Decryption Time</th>
+            <th>Encoding Time</th>
+            <th>Decoding Time</th>
+            <th>File Size (Bytes)</th>
+            <th>Hidden Data Size (Bytes)</th>
+            <th>Total Time</th>
+        </tr>
+    </thead>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#statsTable').DataTable({
+            "ajax": {
+                "url": "/stats/data",
+                "dataSrc": ""
+            },
+            "columns": [
+                { "data": "id" },
+                { "data": "timestamp" },
+                { "data": "username" },
+                { "data": "action" },
+                { "data": "status" },
+                { "data": "algorithm" },
+                { "data": "keyLength" },
+                { "data": "messageLength" },
+                { "data": "fileFormat" },
+                { "data": "encryptionTime" },
+                { "data": "decryptionTime" },
+                { "data": "encodingTime" },
+                { "data": "decodingTime" },
+                { "data": "fileSizeBytes" },
+                { "data": "hiddenDataSizeBytes" },
+                { "data": "totalTime" }
+            ],
+            "order": [[1, "desc"]],
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/pl.json"
+            },
+            "createdRow": function(row, data, dataIndex) {
+                // data.status to wartość z pola status
+                var statusCell = $('td:eq(4)', row); // 4 to indeks kolumny "status"
+                if (data.status === "success") {
+                    statusCell.css("background-color", "rgba(0, 128, 0, 0.2)"); // lekko zielony
+                } else if (data.status === "fail") {
+                    statusCell.css("background-color", "rgba(255, 0, 0, 0.2)"); // lekko czerwony
+                }
+            },
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    text: 'Eksportuj do CSV',
+                    charset: 'utf-8',
+                    bom: true,
+                    filename: 'historia_logowan',
+                    fieldSeparator: ';',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+            ]
+        });
+    });
+</script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+</body>
+</html>
